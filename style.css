@@ -1,0 +1,45 @@
+.headline {
+  display: flex;
+  justify-content: center;
+  margin-top: 1em;
+}
+
+.headline svg {
+  width: 430px;
+}
+
+.search {
+  display: flex;
+  justify-content: flex-end;
+  bottom: 1em;
+}
+
+.menus {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1em;
+  border-top: 1px solid #ebebeb;
+  border-bottom: 4px double black;
+}
+
+.menus button {
+  border: none;
+  background: none;
+  margin: 5px;
+  transition: background-color 0.5s ease-in-out;
+}
+
+.menus button:hover {
+  background-color: rgb(217, 219, 222);
+}
+
+.news {
+  border-bottom: 2px solid black;
+  padding: 2em;
+}
+
+.news_img {
+  max-width: 100%;
+  max-height: 250px;
+}
