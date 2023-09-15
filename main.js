@@ -10,7 +10,7 @@ searchForm.addEventListener("submit", () => getNewsBySearch(event));
 
 const getLatestNews = async () => {
   let url = new URL(
-    `https://api.newscatcherapi.com/v2/latest_headlines?countries=KR&topic=sport&page_size=2`
+    `https://api.newscatcherapi.com/v2/latest_headlines?countries=KR&topic=sport&page_size=10`
   );
   let header = new Headers({
     "x-api-key": "ulpJx-BF_VupX-PGjyFesHT24jOu56exEBGzfYFaZCQ",
@@ -26,7 +26,7 @@ const getLatestNews = async () => {
 const getNewsByTopic = async (event) => {
   let topic = event.target.innerText.toLowerCase();
   let url = new URL(
-    `https://api.newscatcherapi.com/v2/latest_headlines?countries=KR&topic=${topic}&page_size=2`
+    `https://api.newscatcherapi.com/v2/latest_headlines?countries=KR&topic=${topic}&page_size=10`
   );
 
   header = new Headers({
