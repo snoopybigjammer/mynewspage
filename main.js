@@ -1,5 +1,8 @@
 let news = [];
+let page = 1;
+let totalPages = 0;
 let menus = document.querySelectorAll(".menus button");
+
 menus.forEach((menu) =>
   menu.addEventListener("click", () => getNewsByTopic(event))
 );
@@ -8,37 +11,49 @@ const searchFormInput = document.querySelector(".search form input");
 
 searchForm.addEventListener("submit", () => getNewsBySearch(event));
 
+let url;
+
+const getNews = async () => {
+  try {
+    let header = new Headers({
+      "x-api-key": "ulpJx-BF_VupX-PGjyFesHT24jOu56exEBGzfYFaZCQ",
+    });
+    url.searchParams.set("page", page);
+    let response = await fetch(url, { headers: header });
+    let data = await response.json();
+
+    if (response.status == 200) {
+      if (data.total_hits == 0) {
+        throw new Error("검색된 결과값이 없습니다");
+      }
+      news = data.articles;
+      totalPages = data.total_pages;
+      page = data.page;
+      render();
+      pagenation();
+      moveToPage(1);
+    } else {
+      throw new Error(data.message);
+    }
+  } catch (error) {
+    errorRender(error.message);
+  }
+};
+
 const getLatestNews = async () => {
-  let url = new URL(
+  url = new URL(
     `https://api.newscatcherapi.com/v2/latest_headlines?countries=KR&topic=sport&page_size=10`
   );
-  let header = new Headers({
-    "x-api-key": "ulpJx-BF_VupX-PGjyFesHT24jOu56exEBGzfYFaZCQ",
-  });
-  let response = await fetch(url, { headers: header });
-  let data = await response.json();
-
-  news = data.articles;
-
-  render();
+  getNews();
 };
 
 const getNewsByTopic = async (event) => {
   let topic = event.target.innerText.toLowerCase();
-  let url = new URL(
+  url = new URL(
     `https://api.newscatcherapi.com/v2/latest_headlines?countries=KR&topic=${topic}&page_size=10`
   );
 
-  header = new Headers({
-    "x-api-key": "ulpJx-BF_VupX-PGjyFesHT24jOu56exEBGzfYFaZCQ",
-  });
-
-  let response = await fetch(url, { headers: header });
-  let data = await response.json();
-
-  news = data.articles;
-
-  render();
+  getNews();
 };
 
 const getNewsBySearch = async (event) => {
@@ -47,21 +62,11 @@ const getNewsBySearch = async (event) => {
   searchFormInput.value = "";
   console.log(keyword);
 
-  let url = new URL(
+  url = new URL(
     `https://api.newscatcherapi.com/v2/search?q=${keyword}&from=2023/9/1&countries=KR&page_size=10
     `
   );
-
-  header = new Headers({
-    "x-api-key": "ulpJx-BF_VupX-PGjyFesHT24jOu56exEBGzfYFaZCQ",
-  });
-
-  let response = await fetch(url, { headers: header });
-  let data = await response.json();
-
-  news = data.articles;
-
-  render();
+  getNews();
 };
 
 const render = () => {
@@ -98,6 +103,63 @@ const render = () => {
     .join("");
 
   document.getElementById("news-board").innerHTML = newsHTML;
+};
+
+const errorRender = (message) => {
+  let errorHTML = `<div class="alert alert-danger text-center" role="alert">
+  ${message}
+</div>`;
+  document.getElementById("news-board").innerHTML = errorHTML;
+};
+
+const pagenation = () => {
+  let pagenationHTML = ``;
+  let pageGroup = Math.ceil(page / 5);
+  let last = pageGroup * 5;
+  let first = last - 4;
+
+  pagenationHTML = `    <li class="page-item ${pageGroup == 1 ? "hidden" : ""}">
+  <a class="page-link" href="#" aria-label="Previous" onclick = "moveToPage(1)">
+    <span aria-hidden="true">&laquo;</span>
+  </a>
+</li>
+
+<li class="page-item ${pageGroup == 1 ? "hidden" : ""}">
+<a class="page-link" href="#" aria-label="Previous" onclick = "moveToPage(${
+    page - 1
+  })">
+  <span aria-hidden="true">&lt;</span>
+</a> </li>`;
+
+  for (let i = first; i <= last; i++) {
+    pagenationHTML += `<li class="page-item ${
+      page == i ? "active" : ""
+    }"><a class="page-link" href="#" onclick = "moveToPage(${i})">${i}</a></li>`;
+  }
+
+  pagenationHTML += `    <li class="page-item ${
+    pageGroup == Math.ceil(totalPages / 5) ? "hidden" : ""
+  }">
+  <a class="page-link" href="#" aria-label="Next" onclick = "moveToPage(${
+    page + 1
+  })">
+    <span aria-hidden="true">&gt;</span>
+  </a>
+</li>
+
+<li class="page-item ${pageGroup == Math.ceil(totalPages / 5) ? "hidden" : ""}">
+<a class="page-link" href="#" aria-label="Next" onclick = "moveToPage(${totalPages})">
+  <span aria-hidden="true">&raquo;</span>
+</a>
+</li>
+`;
+
+  document.querySelector(".pagination").innerHTML = pagenationHTML;
+};
+
+const moveToPage = (pageNum) => {
+  page = pageNum;
+  getNews();
 };
 
 getLatestNews();
